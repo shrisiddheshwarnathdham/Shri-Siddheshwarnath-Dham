@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="hi-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Admin Panel — श्री सिद्धेश्वरनाथ धाम</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<!-- Security headers -->
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="no-referrer">
+<meta http-equiv="X-XSS-Protection" content="1; mode=block">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://fonts.gstatic.com https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in; connect-src 'self' https://*.supabase.co https://*.supabase.in; frame-ancestors 'none'">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔱</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Noto+Serif+Devanagari:wght@400;600;700&family=Tiro+Devanagari+Hindi&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+/* ═══════════════════════════════════════════
+   THEME — DARK TEMPLE ADMIN
+   Deep maroon + saffron gold, sacred geometry
+═══════════════════════════════════════════ */
+:root {
+  --bg-base:      #0D0406;
+  --bg-card:      #180A0D;
+  --bg-raised:    #221016;
+  --bg-hover:     #2E1520;
+  --border:       rgba(212,175,55,0.18);
+  --border-glow:  rgba(212,175,55,0.45);
+  --maroon:       #7A1A1A;
+  --maroon-light: #9E2424;
+  --saffron:      #E8821A;
+  --saffron-dim:  #B5601A;
+  --gold:         #D4AF37;
+  --gold-light:   #F0D060;
+  --gold-pale:    #F5E8B0;
+  --cream:        #FAF0DC;
+  --text-1:       #F5E8C8;
+  --text-2:       #C8A878;
+  --text-3:       #8A6840;
+  --danger:       #E03535;
+  --success:      #3DB86A;
+  --info:         #3A8FD8;
+  --font-dev:     'Noto Serif Devanagari', serif;
+  --font-brand:   'Rozha One', serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --radius:       10px;
+  --shadow:       0 4px 24px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-1);
+  font-family: var(--font-dev);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--maroon); border-radius: 3px; }
+
+/* ═══ DECORATIVE BORDER ═══ */
+body::before {
+  content: '';
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--maroon), var(--gold), var(--saffron), var(--gold), var(--maroon));
+  z-index: 1000;
+}
+
+/* ═══ LOGIN SCREEN ═══ */
+#login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(122,26,26,0.35) 0%, transparent 70%),
+    var(--bg-base);
+}
+
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 0 60px rgba(212,175,55,0.08), var(--shadow);
+  text-align: center;
+}
+
+.login-trishul {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 12px var(--gold));
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%,100% { filter: drop-shadow(0 0 12px var(--gold)); }
+  50%      { filter: drop-shadow(0 0 24px var(--saffron)); }
+}
+
+.login-title {
+  font-family: var(--font-brand);
+  font-size: 1.4rem;
+  color: var(--gold-light);
+  margin-bottom: 0.3rem;
+}
+.login-sub {
+  font-size: 0.8rem;
+  color: var(--text-3);
+  margin-bottom: 2rem;
+  letter-spacing: 0.05em;
+}
+
+.login-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-raised);
+  padding: 4px;
+  border-radius: 8px;
+}
+.login-tab {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--font-dev);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.login-tab.active {
+  background: var(--maroon);
+  color: var(--gold-light);
+}
+
+.input-group { margin-bottom: 1rem; text-align: left; }
+.input-group label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-2);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.04em;
+}
+.input-group input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-family: var(--font-dev);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-group input:focus { border-color: var(--gold); }
+.input-group input::placeholder { color: var(--text-3); }
+
+.otp-row { display: flex; gap: 0.5rem; }
+.otp-row input { flex: 1; }
+.btn-send-otp {
+  padding: 0.7rem 1rem;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--gold);
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.btn-send-otp:hover { border-color: var(--gold); }
+.btn-send-otp:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem;
+  background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-light) 100%);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: var(--radius);
+  color: var(--gold-light);
+  font-family: var(--font-dev);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--maroon-light) 0%, #B52E2E 100%);
+  box-shadow: 0 0 20px rgba(122,26,26,0.5);
+}
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.login-msg {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  display: none;
+}
+.login-msg.error { background: rgba(224,53,53,0.12); color: #F07070; border: 1px solid rgba(224,53,53,0.3); display: block; }
+.login-msg.success { background: rgba(61,184,106,0.12); color: #70E09A; border: 1px solid rgba(61,184,106,0.3); display: block; }
+.login-msg.info { background: rgba(58,143,216,0.12); color: #80C0F0; border: 1px solid rgba(58,143,216,0.3); display: block; }
+
+/* ═══ MAIN APP ═══ */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+#app.visible { display: flex; }
+
+/* ── Top Nav ── */
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 3px; z-index: 100;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.nav-brand span:first-child { font-size: 1.4rem; }
+.nav-brand-text {
+  font-family: var(--font-brand);
+  font-size: 1rem;
+  color: var(--gold-light);
+  line-height: 1.2;
+}
+.nav-brand-text small {
+  display: block;
+  font-family: var(--font-dev);
+  font-size: 0.65rem;
+  color: var(--text-3);
+  font-weight: 400;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.nav-user {
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+.btn-logout {
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-2);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Layout ── */
+.app-body {
+  display: flex;
+  flex: 1;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  padding: 1rem 0;
+  flex-shrink: 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+.sidebar-section {
+  padding: 0 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.sidebar-label {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-2);
+  font-family: var(--font-dev);
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s;
+}
+.sidebar-btn:hover { background: var(--bg-hover); color: var(--text-1); }
+.sidebar-btn.active { background: rgba(122,26,26,0.4); color: var(--gold-light); border-left: 2px solid var(--gold); }
+.sidebar-icon { font-size: 1rem; width: 1.2rem; }
+
+/* ── Main Content ── */
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.page-title {
+  font-family: var(--font-brand);
+  font-size: 1.4rem;
+  color: var(--gold-light);
+}
+.page-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-3);
+  margin-top: 0.15rem;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ── Stats Row ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--gold); }
+.stat-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+.stat-value {
+  font-family: var(--font-brand);
+  font-size: 2rem;
+  color: var(--gold-light);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  margin-top: 0.3rem;
+}
+
+/* ── Action Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  font-family: var(--font-dev);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--saffron) 100%);
+  color: var(--bg-base);
+  font-weight: 700;
+}
+.btn-gold:hover { opacity: 0.9; box-shadow: 0 0 16px rgba(212,175,55,0.4); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-danger {
+  background: rgba(224,53,53,0.12);
+  border: 1px solid rgba(224,53,53,0.3);
+  color: #F08080;
+}
+.btn-danger:hover { background: rgba(224,53,53,0.25); }
+.btn-sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+
+/* ── Search & Filters ── */
+.toolbar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 1rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-1);
+  font-family: var(--font-dev);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--gold); }
+.search-input::placeholder { color: var(--text-3); }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+thead tr {
+  border-bottom: 1px solid var(--border-glow);
+}
+thead th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  color: var(--text-3);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid rgba(212,175,55,0.07);
+  transition: background 0.15s;
+}
+tbody tr:hover { background: var(--bg-raised); }
+tbody td { padding: 0.75rem 0.75rem; color: var(--text-1); vertical-align: middle; }
+.td-actions { display: flex; gap: 0.4rem; }
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.badge-today { background: rgba(232,130,26,0.2); color: var(--saffron); border: 1px solid rgba(232,130,26,0.4); }
+.badge-upcoming { background: rgba(61,184,106,0.12); color: #70E09A; border: 1px solid rgba(61,184,106,0.3); }
+.badge-past { background: rgba(138,104,64,0.15); color: var(--text-3); border: 1px solid rgba(138,104,64,0.2); }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 14px;
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow);
+  transform: translateY(10px);
+  transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.modal-title {
+  font-family: var(--font-brand);
+  font-size: 1.1rem;
+  color: var(--gold-light);
+}
+.modal-close {
+  background: none; border: none;
+  color: var(--text-3); font-size: 1.4rem;
+  cursor: pointer; line-height: 1;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text-1); }
+.modal-footer {
+  display: flex; gap: 0.75rem; justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.form-group { margin-bottom: 0.9rem; }
+.form-group label {
+  display: block;
+  font-size: 0.78rem; color: var(--text-2);
+  margin-bottom: 0.35rem;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-1);
+  font-family: var(--font-dev);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--gold); }
+.form-group select { cursor: pointer; }
+.form-group select option { background: var(--bg-card); }
+
+/* ── Toast ── */
+#toast {
+  position: fixed;
+  bottom: 1.5rem; right: 1.5rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s;
+  max-width: 300px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.success { background: rgba(61,184,106,0.15); border: 1px solid rgba(61,184,106,0.4); color: #80EEB0; }
+#toast.error { background: rgba(224,53,53,0.15); border: 1px solid rgba(224,53,53,0.4); color: #F09090; }
+#toast.info { background: rgba(58,143,216,0.15); border: 1px solid rgba(58,143,216,0.4); color: #90C8F8; }
+
+/* ── Calendar Grid ── */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+.cal-day {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 60px;
+}
+.cal-day:hover { border-color: var(--gold); background: var(--bg-hover); }
+.cal-day.has-pujari { border-color: rgba(61,184,106,0.4); background: rgba(61,184,106,0.05); }
+.cal-day.today { border-color: var(--saffron); background: rgba(232,130,26,0.08); }
+.cal-day-num { font-weight: 700; color: var(--gold); font-size: 0.9rem; }
+.cal-day-name { color: var(--text-2); margin-top: 0.15rem; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-day-empty { color: var(--text-3); font-size: 0.7rem; font-style: italic; }
+
+/* ── Upload Zone ── */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.04);
+}
+.upload-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+.upload-text { color: var(--text-2); font-size: 0.9rem; }
+.upload-hint { color: var(--text-3); font-size: 0.78rem; margin-top: 0.3rem; }
+.upload-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.preview-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 1;
+}
+.preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.preview-remove {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(0,0,0,0.7);
+  border: none; border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #fff; font-size: 0.8rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-3);
+}
+.empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.5; }
+.empty-state p { font-size: 0.9rem; }
+
+/* ── Loading Spinner ── */
+.spinner {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border: 2px solid rgba(212,175,55,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-center {
+  display: flex; align-items: center; justify-content: center;
+  padding: 3rem;
+  gap: 0.75rem;
+  color: var(--text-3);
+  font-size: 0.88rem;
+}
+
+/* ── Page Visibility ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .sidebar { display: none; }
+  .form-row { grid-template-columns: 1fr; }
+  .topnav { padding: 0.6rem 1rem; }
+  .main-content { padding: 1rem; }
+  .nav-brand-text small { display: none; }
+  .mobile-nav {
+    display: flex;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    z-index: 200;
+    padding: 0.5rem;
+    gap: 0.25rem;
+  }
+  .mobile-nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 0.2rem; padding: 0.5rem 0.25rem;
+    background: none; border: none; border-radius: 8px;
+    color: var(--text-3); font-size: 0.6rem; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mobile-nav-btn .mn-icon { font-size: 1.3rem; }
+  .mobile-nav-btn.active { color: var(--gold); background: rgba(212,175,55,0.08); }
+  body { padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (min-width: 701px) {
+  .mobile-nav { display: none !important; }
+}
+
+/* Divider */
+.divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+/* Inline form hint */
+.hint { font-size: 0.72rem; color: var(--text-3); margin-top: 0.25rem; }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <span class="login-trishul">🔱</span>
+    <div class="login-title">श्री सिद्धेश्वरनाथ धाम</div>
+    <div class="login-sub">ADMIN PANEL · प्रशासन पैनल</div>
+
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchLoginTab('email')">📧 Email</button>
+      <button class="login-tab" onclick="switchLoginTab('phone')">📱 Phone OTP</button>
+    </div>
+
+    <!-- Email Login -->
+    <div id="tab-email">
+      <div class="input-group">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="admin@example.com" autocomplete="email">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') loginEmail()">
+      </div>
+      <button class="btn-primary" onclick="loginEmail()">
+        🔐 Login करें
+      </button>
+    </div>
+
+    <!-- Phone OTP Login -->
+    <div id="tab-phone" style="display:none">
+      <div class="input-group">
+        <label>Phone Number (WhatsApp)</label>
+        <div class="otp-row">
+          <input type="tel" id="login-phone" placeholder="+91 9999999999" autocomplete="tel">
+          <button class="btn-send-otp" id="btn-send-otp" onclick="sendPhoneOTP()">OTP भेजें</button>
+        </div>
+        <p class="hint">Format: +91XXXXXXXXXX</p>
+      </div>
+      <div class="input-group" id="otp-input-group" style="display:none">
+        <label>OTP Code</label>
+        <input type="text" id="login-otp" placeholder="6-digit OTP" maxlength="6" inputmode="numeric">
+      </div>
+      <button class="btn-primary" id="btn-verify-otp" style="display:none" onclick="verifyPhoneOTP()">
+        ✅ OTP Verify करें
+      </button>
+    </div>
+
+    <div id="login-msg" class="login-msg"></div>
+
+    <!-- SETUP PANEL on login screen -->
+    <div style="margin-top:1.2rem;">
+      <button onclick="toggleSetupPanel()" id="setup-toggle-btn" style="width:100%;background:transparent;border:1px solid rgba(212,175,55,0.25);border-radius:8px;color:rgba(212,175,55,0.6);font-size:0.8rem;padding:0.5rem;cursor:pointer;font-family:var(--font-dev);transition:all 0.2s;">
+        ⚙️ Supabase Setup (पहली बार)
+      </button>
+      <div id="setup-panel" style="display:none;margin-top:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid rgba(212,175,55,0.2);border-radius:10px;">
+        <p style="font-size:0.75rem;color:var(--text-3);margin-bottom:0.75rem;">
+          Supabase Dashboard → Settings → API से copy करें
+        </p>
+        <div class="input-group">
+          <label>Supabase Project URL</label>
+          <input type="url" id="setup-url" placeholder="https://xxxxx.supabase.co" autocomplete="off" style="font-size:0.82rem;">
+        </div>
+        <div class="input-group">
+          <label>Anon Key</label>
+          <input type="password" id="setup-key" placeholder="eyJhbGci..." autocomplete="off" style="font-size:0.82rem;">
+        </div>
+        <button onclick="saveSetupFromLogin()" style="width:100%;padding:0.7rem;margin-top:0.25rem;background:linear-gradient(135deg,var(--maroon),var(--maroon-light));border:1px solid rgba(212,175,55,0.3);border-radius:8px;color:var(--gold-light);font-family:var(--font-dev);font-size:0.9rem;cursor:pointer;">
+          💾 Save करें
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app" style="display:none">
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <div class="nav-brand">
+      <span>🔱</span>
+      <div class="nav-brand-text">
+        सिद्धेश्वरनाथ धाम
+        <small>Admin Panel</small>
+      </div>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user" id="nav-user-email"></span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="app-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <button class="sidebar-btn active" onclick="showPage('dashboard')" data-page="dashboard">
+          <span class="sidebar-icon">📊</span> Dashboard
+        </button>
+        <button class="sidebar-btn" onclick="showPage('pujari')" data-page="pujari">
+          <span class="sidebar-icon">🙏</span> पुजारी प्रबंधन
+        </button>
+        <button class="sidebar-btn" onclick="showPage('calendar')" data-page="calendar">
+          <span class="sidebar-icon">📅</span> 365 Calendar
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Media</div>
+        <button class="sidebar-btn" onclick="showPage('gallery')" data-page="gallery">
+          <span class="sidebar-icon">🖼️</span> Image Upload
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Info</div>
+        <button class="sidebar-btn" onclick="showPage('settings')" data-page="settings">
+          <span class="sidebar-icon">⚙️</span> Settings
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- ── DASHBOARD ── -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🕉️ Dashboard</div>
+            <div class="page-subtitle">स्वागत है — श्री सिद्धेश्वरनाथ धाम प्रशासन</div>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-icon">🙏</div>
+            <div class="stat-value" id="stat-total">—</div>
+            <div class="stat-label">कुल पुजारी</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value" id="stat-assigned">—</div>
+            <div class="stat-label">Assigned Days</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭕</div>
+            <div class="stat-value" id="stat-unassigned">—</div>
+            <div class="stat-label">Unassigned Days</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🌟</div>
+            <div class="stat-value" id="stat-today-name">—</div>
+            <div class="stat-label">आज के पुजारी</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📋 Recent Pujari (Latest Added)</div>
+          <div id="recent-list"><div class="loading-center"><div class="spinner"></div> Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- ── PUJARI MANAGEMENT ── -->
+      <div id="page-pujari" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🙏 पुजारी प्रबंधन</div>
+            <div class="page-subtitle">365 पुजारियों की सूची</div>
+          </div>
+          <button class="btn btn-gold" onclick="openAddModal()">
+            ➕ नया पुजारी जोड़ें
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <input type="search" class="search-input" id="pujari-search"
+            placeholder="🔍 नाम या नंबर से खोजें..." oninput="filterPujari(this.value)">
+          <button class="btn btn-outline" onclick="loadPujari()">🔄 Refresh</button>
+          <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table id="pujari-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>नाम</th>
+                  <th>मोबाइल</th>
+                  <th>तिथि</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pujari-tbody">
+                <tr><td colspan="6"><div class="loading-center"><div class="spinner"></div> Loading...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CALENDAR ── -->
+      <div id="page-calendar" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📅 365 दिन Calendar</div>
+            <div class="page-subtitle">कौन से दिन कौन पुजारी है</div>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button class="btn btn-outline" onclick="changeCalYear(-1)">◀</button>
+            <span id="cal-year-label" style="color:var(--gold); font-family:var(--font-brand); font-size:1.1rem;">2026</span>
+            <button class="btn btn-outline" onclick="changeCalYear(1)">▶</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🗓️ Month</div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <button class="btn btn-sm btn-outline" id="cal-all-btn" onclick="filterCalMonth(0)" style="border-color:var(--gold);color:var(--gold)">All</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(1)">Jan</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(2)">Feb</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(3)">Mar</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(4)">Apr</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(5)">May</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(6)">Jun</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(7)">Jul</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(8)">Aug</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(9)">Sep</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(10)">Oct</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(11)">Nov</button>
+            <button class="btn btn-sm btn-outline" onclick="filterCalMonth(12)">Dec</button>
+          </div>
+          <div id="cal-grid" class="cal-grid"><div class="loading-center"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ── GALLERY ── -->
+      <div id="page-gallery" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🖼️ Image Upload</div>
+            <div class="page-subtitle">मंदिर की फ़ोटो अपलोड करें</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📁 Supabase Storage में Upload</div>
+          <div class="upload-zone" id="drop-zone"
+            onclick="document.getElementById('file-input').click()"
+            ondragover="event.preventDefault(); this.classList.add('dragover')"
+            ondragleave="this.classList.remove('dragover')"
+            ondrop="this.classList.remove('dragover'); handleDrop(event)">
+            <span class="upload-icon">📸</span>
+            <div class="upload-text">Click करें या Photo खींचें यहाँ</div>
+            <div class="upload-hint">JPG, PNG, WEBP · Max 5MB per file</div>
+          </div>
+          <input type="file" id="file-input" accept="image/*" multiple style="display:none"
+            onchange="handleFileSelect(this.files)">
+          <div class="upload-preview" id="upload-preview"></div>
+          <div style="margin-top:1rem; display:none; gap:0.75rem; justify-content:flex-end;" id="upload-actions">
+            <button class="btn btn-outline" onclick="clearUploads()">🗑️ Clear</button>
+            <button class="btn btn-gold" id="btn-upload" onclick="uploadFiles()">⬆️ Upload करें</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:1rem;">
+          <div class="card-title">🗂️ Uploaded Images</div>
+          <div id="gallery-list"><div class="loading-center"><div class="spinner"></div> Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div id="page-settings" class="page">
+        <div class="page-header">
+          <div>
+            <div class="page-title">⚙️ Settings</div>
+            <div class="page-subtitle">Admin configuration</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔗 Supabase Connection</div>
+          <div style="background:rgba(232,130,26,0.08);border:1px solid rgba(232,130,26,0.3);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:var(--saffron)">
+            🔒 <strong>Security:</strong> Credentials sirf is browser session mein save hote hain (sessionStorage). Tab band hone par automatically delete ho jaate hain. Inhe source code ya GitHub pe kabhi mat daalo.
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-2); margin-bottom:1rem;">
+            Neeche diye fields mein apna Supabase URL aur Anon Key daalo.
+          </p>
+          <div class="form-group">
+            <label>Supabase Project URL</label>
+            <input type="url" id="set-url" placeholder="https://xxxxx.supabase.co" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label>Anon Key</label>
+            <input type="password" id="set-key" placeholder="eyJhbGci..." autocomplete="off">
+          </div>
+          <button class="btn btn-gold" onclick="saveSettings()">💾 Save & Reconnect</button>
+        </div>
+        <div class="card">
+          <div class="card-title">ℹ️ Pujari Table Column Names</div>
+          <p style="font-size:0.85rem; color:var(--text-2); margin-bottom:1rem;">
+            Agar aapki table ke column names alag hain toh yahan set karein.
+          </p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name column</label>
+              <input type="text" id="col-naam" placeholder="naam">
+            </div>
+            <div class="form-group">
+              <label>Phone column</label>
+              <input type="text" id="col-number" placeholder="number">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date column</label>
+              <input type="text" id="col-date" placeholder="date">
+            </div>
+            <div class="form-group">
+              <label>Table name</label>
+              <input type="text" id="col-table" placeholder="pujari">
+            </div>
+          </div>
+          <button class="btn btn-gold" onclick="saveColSettings()">💾 Save Column Settings</button>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- app-body -->
+</div><!-- app -->
+
+<!-- Mobile Nav -->
+<nav class="mobile-nav" id="mobile-nav" style="display:none">
+  <button class="mobile-nav-btn active" onclick="showPage('dashboard')" data-page="dashboard">
+    <span class="mn-icon">📊</span>Home
+  </button>
+  <button class="mobile-nav-btn" onclick="showPage('pujari')" data-page="pujari">
+    <span class="mn-icon">🙏</span>पुजारी
+  </button>
+  <button class="mobile-nav-btn" onclick="showPage('calendar')" data-page="calendar">
+    <span class="mn-icon">📅</span>Calendar
+  </button>
+  <button class="mobile-nav-btn" onclick="showPage('gallery')" data-page="gallery">
+    <span class="mn-icon">🖼️</span>Gallery
+  </button>
+  <button class="mobile-nav-btn" onclick="showPage('settings')" data-page="settings">
+    <span class="mn-icon">⚙️</span>Settings
+  </button>
+</nav>
+
+<!-- ═══ ADD / EDIT MODAL ═══ -->
+<div class="modal-overlay" id="pujari-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">नया पुजारी जोड़ें</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <input type="hidden" id="edit-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>पुजारी का नाम *</label>
+        <input type="text" id="f-naam" placeholder="पंडित राम शर्मा">
+      </div>
+      <div class="form-group">
+        <label>मोबाइल नंबर *</label>
+        <input type="tel" id="f-number" placeholder="+91 9XXXXXXXXX">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>पूजा की तिथि *</label>
+      <input type="date" id="f-date">
+      <p class="hint">साल के किस दिन ये पुजारी पूजा करेंगे</p>
+    </div>
+    <div class="form-group">
+      <label>Extra Notes (optional)</label>
+      <input type="text" id="f-notes" placeholder="कोई विशेष जानकारी...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="savePujari()">💾 Save करें</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="max-width:360px; text-align:center;">
+    <div style="font-size:2rem; margin-bottom:0.75rem;">⚠️</div>
+    <div style="font-size:1rem; color:var(--text-1); margin-bottom:0.5rem;" id="confirm-text">क्या आप सच में delete करना चाहते हैं?</div>
+    <div style="font-size:0.82rem; color:var(--text-3); margin-bottom:1.5rem;">यह action undo नहीं होगी।</div>
+    <div style="display:flex; gap:0.75rem; justify-content:center;">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">🗑️ Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══ SCRIPT ═══ -->
+<script>
+// ── UTILITIES ───────────────────────────────────────────
+
+// XSS — always escape before putting DB data into innerHTML
+function esc(str) {
+  if (str === null || str === undefined) return '—';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function toLocalIso(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+// ── CONFIG ──────────────────────────────────────────────
+// SECURITY NOTE: Supabase credentials are NOT hardcoded here.
+// Admin must enter them once in Settings → they are saved in sessionStorage only.
+// NEVER commit real keys to source code / GitHub.
+const DEFAULT_CONFIG = {
+  supabaseUrl: '',
+  supabaseKey: '',
+  tableName: 'pujari',
+  colNaam: 'naam',
+  colNumber: 'number',
+  colDate: 'date'
+};
+
+function getConfig() {
+  try {
+    // sessionStorage: cleared on browser close — safer for admin credentials
+    const saved = sessionStorage.getItem('snd_config');
+    return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : { ...DEFAULT_CONFIG };
+  } catch(e) {
+    sessionStorage.removeItem('snd_config');
+    return { ...DEFAULT_CONFIG };
+  }
+}
+
+let sb = null;
+let allPujari = [];
+let calYear = new Date().getFullYear();
+let calMonthFilter = 0;
+let pendingFiles = [];
+
+function initSupabase() {
+  const cfg = getConfig();
+  if (!cfg.supabaseUrl || !cfg.supabaseKey) {
+    // Credentials not set — will prompt after login screen check
+    sb = null;
+    return;
+  }
+  sb = supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
+}
+initSupabase();
+
+// ── SETUP FROM LOGIN PAGE ──────────────────────────────
+function toggleSetupPanel() {
+  const panel = document.getElementById('setup-panel');
+  const btn = document.getElementById('setup-toggle-btn');
+  const isVisible = panel.style.display !== 'none';
+  panel.style.display = isVisible ? 'none' : 'block';
+  btn.style.color = isVisible ? 'rgba(212,175,55,0.6)' : 'var(--gold-light)';
+  btn.style.borderColor = isVisible ? 'rgba(212,175,55,0.25)' : 'rgba(212,175,55,0.6)';
+  // Pre-fill if already saved
+  if (!isVisible) {
+    const cfg = getConfig();
+    if (cfg.supabaseUrl) document.getElementById('setup-url').value = cfg.supabaseUrl;
+  }
+}
+
+function saveSetupFromLogin() {
+  const url = document.getElementById('setup-url').value.trim();
+  const key = document.getElementById('setup-key').value.trim();
+  if (!url || !key) return showLoginMsg('URL aur Key dono daalo', 'error');
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.endsWith('.supabase.co') && !parsed.hostname.endsWith('.supabase.in')) {
+      return showLoginMsg('Valid Supabase URL daalo (.supabase.co)', 'error');
+    }
+  } catch { return showLoginMsg('Valid HTTPS URL daalo', 'error'); }
+  if (key.length < 100) return showLoginMsg('Anon Key bahut chhoti hai — sahi key daalo', 'error');
+  const cfg = getConfig();
+  cfg.supabaseUrl = url;
+  cfg.supabaseKey = key;
+  sessionStorage.setItem('snd_config', JSON.stringify(cfg));
+  initSupabase();
+  // Close panel and show success
+  document.getElementById('setup-panel').style.display = 'none';
+  showLoginMsg('✅ Supabase connected! Ab login karein.', 'success');
+}
+
+// ── SETTINGS PAGE ──────────────────────────────────────
+function loadSettingsUI() {
+  const cfg = getConfig();
+  document.getElementById('set-url').value = cfg.supabaseUrl;
+  document.getElementById('set-key').value = cfg.supabaseKey;
+  document.getElementById('col-table').value = cfg.tableName;
+  document.getElementById('col-naam').value = cfg.colNaam;
+  document.getElementById('col-number').value = cfg.colNumber;
+  document.getElementById('col-date').value = cfg.colDate;
+}
+function saveSettings() {
+  const url = document.getElementById('set-url').value.trim();
+  const key = document.getElementById('set-key').value.trim();
+  if (!url || !key) return toast('URL aur Key dono daalo', 'error');
+  // Validate Supabase URL format
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.endsWith('.supabase.co') && !parsed.hostname.endsWith('.supabase.in')) {
+      return toast('URL valid Supabase domain nahi hai (.supabase.co ya .supabase.in)', 'error');
+    }
+  } catch {
+    return toast('Valid HTTPS URL daalo', 'error');
+  }
+  if (key.length < 100) return toast('API Key bahut chhoti lagti hai — anon key check karein', 'error');
+  const cfg = getConfig();
+  cfg.supabaseUrl = url;
+  cfg.supabaseKey = key;
+  // sessionStorage — expires when tab closes
+  sessionStorage.setItem('snd_config', JSON.stringify(cfg));
+  initSupabase();
+  toast('Settings saved! Reconnected.', 'success');
+}
+function saveColSettings() {
+  const cfg = getConfig();
+  // Only allow alphanumeric + underscore for column/table names (prevent injection)
+  const sanitizeName = v => v.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 64);
+  cfg.tableName = sanitizeName(document.getElementById('col-table').value.trim()) || 'pujari';
+  cfg.colNaam   = sanitizeName(document.getElementById('col-naam').value.trim())   || 'naam';
+  cfg.colNumber = sanitizeName(document.getElementById('col-number').value.trim()) || 'number';
+  cfg.colDate   = sanitizeName(document.getElementById('col-date').value.trim())   || 'date';
+  sessionStorage.setItem('snd_config', JSON.stringify(cfg));
+  toast('Column settings saved!', 'success');
+}
+
+// ── AUTH ────────────────────────────────────────────────
+function switchLoginTab(tab) {
+  document.querySelectorAll('.login-tab').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&tab==='email')||(i===1&&tab==='phone'));
+  });
+  document.getElementById('tab-email').style.display = tab==='email' ? '' : 'none';
+  document.getElementById('tab-phone').style.display = tab==='phone' ? '' : 'none';
+  clearLoginMsg();
+}
+
+function showLoginMsg(msg, type='info') {
+  const el = document.getElementById('login-msg');
+  el.textContent = msg;
+  el.className = 'login-msg ' + type;
+}
+function clearLoginMsg() {
+  document.getElementById('login-msg').className = 'login-msg';
+  document.getElementById('login-msg').textContent = '';
+}
+
+async function loginEmail() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  if (!email || !pass) return showLoginMsg('Email aur Password daalo', 'error');
+  if (!sb) return showLoginMsg('Pehle Settings mein Supabase URL & Key save karein', 'error');
+  showLoginMsg('Logging in...', 'info');
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) return showLoginMsg(error.message, 'error');
+    onLogin(data.user);
+  } catch(e) {
+    showLoginMsg('Network error — internet connection check karein', 'error');
+  }
+}
+
+async function sendPhoneOTP() {
+  const phone = document.getElementById('login-phone').value.trim();
+  if (!phone) return showLoginMsg('Phone number daalo', 'error');
+  if (!sb) return showLoginMsg('Pehle Settings mein Supabase URL & Key save karein', 'error');
+  if (!/^\+[1-9]\d{7,14}$/.test(phone)) return showLoginMsg('Format sahi nahi — use +91XXXXXXXXXX', 'error');
+  const btn = document.getElementById('btn-send-otp');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const { error } = await sb.auth.signInWithOtp({ phone });
+  btn.disabled = false; btn.textContent = 'OTP भेजें';
+  if (error) return showLoginMsg(error.message, 'error');
+  document.getElementById('otp-input-group').style.display = '';
+  document.getElementById('btn-verify-otp').style.display = '';
+  showLoginMsg('OTP bheja gaya!', 'success');
+}
+
+async function verifyPhoneOTP() {
+  const phone = document.getElementById('login-phone').value.trim();
+  const token = document.getElementById('login-otp').value.trim();
+  if (!token) return showLoginMsg('OTP daalo', 'error');
+  showLoginMsg('Verifying...', 'info');
+  const { data, error } = await sb.auth.verifyOtp({ phone, token, type: 'sms' });
+  if (error) return showLoginMsg(error.message, 'error');
+  onLogin(data.user);
+}
+
+function onLogin(user) {
+  document.getElementById('login-screen').style.display = 'none';
+  const appEl = document.getElementById('app');
+  appEl.style.display = 'flex';
+  appEl.classList.add('visible');
+  const mobileNav = document.getElementById('mobile-nav');
+  if (mobileNav) mobileNav.style.display = 'flex';
+  const email = user.email || user.phone || 'Admin';
+  document.getElementById('nav-user-email').textContent = email;
+  loadDashboard();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// Check existing session — verify with server, not just local token
+if (sb) {
+  sb.auth.getSession().then(({ data, error }) => {
+    if (!error && data?.session?.user) {
+      onLogin(data.session.user);
+    }
+  }).catch(() => {
+    // Network error — stay on login screen silently
+  });
+} else {
+  // No credentials stored — show settings hint in login message after page load
+  window.addEventListener('DOMContentLoaded', () => {
+    showLoginMsg('Pehli baar: Settings mein Supabase URL & Key daalen, phir login karein.', 'info');
+  });
+}
+
+// ── NAVIGATION ──────────────────────────────────────────
+const VALID_PAGES = new Set(['dashboard','pujari','calendar','gallery','settings']);
+
+function showPage(name) {
+  if (!VALID_PAGES.has(name)) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+
+  document.querySelectorAll('[data-page]').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === name);
+  });
+
+  if (name==='pujari') loadPujari();
+  if (name==='dashboard') loadDashboard();
+  if (name==='calendar') renderCalendar();
+  if (name==='gallery') loadGallery();
+  if (name==='settings') loadSettingsUI();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── DASHBOARD ───────────────────────────────────────────
+async function loadDashboard() {
+  const cfg = getConfig();
+  const { data, error } = await sb.from(cfg.tableName).select('*');
+  if (error) return;
+
+  allPujari = data || [];
+  document.getElementById('stat-total').textContent = allPujari.length;
+
+  const today = toLocalIso(new Date());
+  const assigned = allPujari.filter(p => p[cfg.colDate]).length;
+  const totalDays = (new Date(new Date().getFullYear(), 1, 29).getMonth() === 1) ? 366 : 365;
+  document.getElementById('stat-assigned').textContent = assigned;
+  document.getElementById('stat-unassigned').textContent = totalDays - assigned;
+
+  const todayPujari = allPujari.find(p => p[cfg.colDate] === today);
+  document.getElementById('stat-today-name').textContent =
+    todayPujari ? (todayPujari[cfg.colNaam] || '—').split(' ')[0] : '—';
+
+  const recent = [...allPujari]
+    .sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0))
+    .slice(0, 5);
+
+  const tbody = recent.map(p => `
+    <tr>
+      <td>${esc(p[cfg.colNaam])}</td>
+      <td>${esc(p[cfg.colNumber])}</td>
+      <td>${esc(p[cfg.colDate])}</td>
+    </tr>`).join('');
+
+  document.getElementById('recent-list').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>नाम</th><th>नंबर</th><th>तिथि</th></tr></thead>
+        <tbody>${tbody || '<tr><td colspan="3" style="text-align:center;color:var(--text-3)">No data</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── PUJARI CRUD ──────────────────────────────────────────
+async function loadPujari() {
+  const cfg = getConfig();
+  document.getElementById('pujari-tbody').innerHTML =
+    '<tr><td colspan="6"><div class="loading-center"><div class="spinner"></div></div></td></tr>';
+
+  const { data, error } = await sb.from(cfg.tableName)
+    .select('*').order(cfg.colDate, { ascending: true });
+
+  if (error) {
+    const errEl = document.getElementById('pujari-tbody');
+    const td = document.createElement('td');
+    td.colSpan = 6;
+    td.style.cssText = 'color:var(--danger);text-align:center;padding:2rem';
+    td.textContent = error.message;
+    const tr = document.createElement('tr');
+    tr.appendChild(td);
+    errEl.innerHTML = '';
+    errEl.appendChild(tr);
+    return;
+  }
+  allPujari = data || [];
+  renderPujariTable(allPujari);
+}
+
+function renderPujariTable(list) {
+  const cfg = getConfig();
+  const today = toLocalIso(new Date());
+  if (!list.length) {
+    document.getElementById('pujari-tbody').innerHTML =
+      '<tr><td colspan="6"><div class="empty-state"><span class="empty-icon">🙏</span><p>कोई पुजारी नहीं मिला</p></div></td></tr>';
+    return;
+  }
+  document.getElementById('pujari-tbody').innerHTML = list.map((p, i) => {
+    const d = p[cfg.colDate];
+    let badge = '';
+    if (d === today) badge = '<span class="badge badge-today">आज</span>';
+    else if (d > today) badge = '<span class="badge badge-upcoming">Upcoming</span>';
+    else if (d)         badge = '<span class="badge badge-past">Past</span>';
+    const safeId = Number(p.id); // ensure numeric, no injection
+    return `<tr>
+      <td style="color:var(--text-3)">${i+1}</td>
+      <td><strong>${esc(p[cfg.colNaam])}</strong></td>
+      <td>${esc(p[cfg.colNumber])}</td>
+      <td>${esc(d)}</td>
+      <td>${badge}</td>
+      <td><div class="td-actions">
+        <button class="btn btn-sm btn-outline" onclick="openEditModal(${safeId})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="confirmDelete(${safeId})">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterPujari(q) {
+  const cfg = getConfig();
+  q = q.toLowerCase();
+  const filtered = allPujari.filter(p =>
+    (p[cfg.colNaam]||'').toLowerCase().includes(q) ||
+    (p[cfg.colNumber]||'').includes(q)
+  );
+  renderPujariTable(filtered);
+}
+
+function openAddModal() {
+  document.getElementById('modal-title').textContent = 'नया पुजारी जोड़ें';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('f-naam').value = '';
+  document.getElementById('f-number').value = '';
+  document.getElementById('f-date').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('pujari-modal').classList.add('open');
+}
+
+function openEditModal(id) {
+  const cfg = getConfig();
+  const p = allPujari.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modal-title').textContent = 'पुजारी Edit करें';
+  document.getElementById('edit-id').value = id;
+  document.getElementById('f-naam').value = p[cfg.colNaam] || '';
+  document.getElementById('f-number').value = p[cfg.colNumber] || '';
+  document.getElementById('f-date').value = p[cfg.colDate] || '';
+  document.getElementById('f-notes').value = p.notes || '';
+  document.getElementById('pujari-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('pujari-modal').classList.remove('open');
+}
+
+async function savePujari() {
+  const cfg = getConfig();
+  const id   = document.getElementById('edit-id').value;
+  const naam = document.getElementById('f-naam').value.trim();
+  const num  = document.getElementById('f-number').value.trim();
+  const date = document.getElementById('f-date').value;
+  const notes= document.getElementById('f-notes').value.trim();
+
+  if (!naam || !num || !date) return toast('नाम, नंबर और तिथि ज़रूरी है', 'error');
+
+  // Basic input validation
+  if (naam.length > 100) return toast('नाम बहुत लंबा है (max 100 chars)', 'error');
+  if (!/^[\+\d\s\-]{7,20}$/.test(num)) return toast('मोबाइल नंबर सही नहीं है', 'error');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return toast('तिथि format गलत है', 'error');
+
+  const row = {
+    [cfg.colNaam]: naam,
+    [cfg.colNumber]: num,
+    [cfg.colDate]: date,
+    ...(notes && { notes })
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await sb.from(cfg.tableName).update(row).eq('id', id));
+  } else {
+    ({ error } = await sb.from(cfg.tableName).insert(row));
+  }
+
+  if (error) return toast(error.message, 'error');
+  toast(id ? 'Updated!' : 'जोड़ा गया! 🙏', 'success');
+  closeModal();
+  loadPujari();
+}
+
+// Delete
+function confirmDelete(id) {
+  const cfg = getConfig();
+  const p = allPujari.find(x => x.id === id);
+  const naam = p ? (p[cfg.colNaam] || 'this record') : 'this record';
+  // Use textContent not innerHTML — safe from XSS
+  document.getElementById('confirm-text').textContent = `"${naam}" को delete करना चाहते हैं?`;
+  document.getElementById('confirm-modal').classList.add('open');
+  document.getElementById('confirm-ok-btn').onclick = () => deletePujari(id);
+}
+function closeConfirm() {
+  document.getElementById('confirm-modal').classList.remove('open');
+}
+async function deletePujari(id) {
+  const cfg = getConfig();
+  const { error } = await sb.from(cfg.tableName).delete().eq('id', id);
+  closeConfirm();
+  if (error) return toast(error.message, 'error');
+  toast('Deleted!', 'success');
+  loadPujari();
+}
+
+// Export CSV
+function exportCSV() {
+  const cfg = getConfig();
+  const headers = ['id', cfg.colNaam, cfg.colNumber, cfg.colDate, 'created_at'];
+  const rows = allPujari.map(p =>
+    headers.map(h => `"${(p[h]||'').toString().replace(/"/g,'""')}"`).join(',')
+  );
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'pujari_list.csv';
+  a.click();
+}
+
+// ── CALENDAR ────────────────────────────────────────────
+async function renderCalendar() {
+  const cfg = getConfig();
+  document.getElementById('cal-year-label').textContent = calYear;
+  document.getElementById('cal-grid').innerHTML =
+    '<div class="loading-center"><div class="spinner"></div></div>';
+
+  const { data } = await sb.from(cfg.tableName)
+    .select('*').order(cfg.colDate, { ascending: true });
+  allPujari = data || [];
+
+  renderCalGrid();
+}
+
+function renderCalGrid() {
+  const cfg = getConfig();
+  const today = toLocalIso(new Date());
+  const grid = document.getElementById('cal-grid');
+
+  const days = [];
+  const start = new Date(calYear, 0, 1);
+  const end   = new Date(calYear, 11, 31);
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate()+1)) {
+    const m = d.getMonth()+1;
+    if (calMonthFilter > 0 && m !== calMonthFilter) continue;
+    const iso = toLocalIso(d);
+    const pujari = allPujari.find(p => p[cfg.colDate] === iso);
+    days.push({ iso, day: d.getDate(), month: m, pujari });
+  }
+
+  if (!days.length) { grid.innerHTML = '<div class="empty-state"><span class="empty-icon">📅</span><p>No days</p></div>'; return; }
+
+  grid.innerHTML = days.map(({ iso, day, month, pujari }) => `
+    <div class="cal-day ${pujari ? 'has-pujari' : ''} ${iso===today ? 'today' : ''}"
+      onclick="calDayClick('${esc(iso)}')">
+      <div class="cal-day-num">${day} <span style="font-size:0.65rem;color:var(--text-3)">${monthShort(month)}</span></div>
+      ${pujari
+        ? `<div class="cal-day-name">🙏 ${esc(pujari[cfg.colNaam])}</div>`
+        : `<div class="cal-day-empty">—</div>`
+      }
+    </div>`).join('');
+}
+
+function monthShort(m) {
+  return ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
+}
+function changeCalYear(d) { calYear += d; renderCalendar(); }
+function filterCalMonth(m) { calMonthFilter = m; renderCalGrid(); }
+
+function calDayClick(iso) {
+  const cfg = getConfig();
+  const p = allPujari.find(x => x[cfg.colDate] === iso);
+  if (p) {
+    openEditModal(p.id);
+  } else {
+    // open add modal with date prefilled
+    openAddModal();
+    document.getElementById('f-date').value = iso;
+  }
+}
+
+// ── GALLERY ─────────────────────────────────────────────
+function handleFileSelect(files) {
+  pendingFiles = [...pendingFiles, ...files];
+  renderPreviews();
+}
+function handleDrop(e) {
+  e.preventDefault();
+  handleFileSelect(e.dataTransfer.files);
+}
+function renderPreviews() {
+  const preview = document.getElementById('upload-preview');
+  const actions = document.getElementById('upload-actions');
+  // Build all HTML at once — avoid innerHTML += in loop (re-parses DOM each iteration)
+  preview.innerHTML = pendingFiles.map((f, i) => {
+    const url = URL.createObjectURL(f);
+    // esc() the filename to prevent XSS
+    return `<div class="preview-item">
+      <img src="${url}" alt="${esc(f.name)}">
+      <button class="preview-remove" onclick="removeFile(${i})">✕</button>
+    </div>`;
+  }).join('');
+  actions.style.display = pendingFiles.length > 0 ? 'flex' : 'none';
+}
+function removeFile(i) {
+  pendingFiles.splice(i, 1);
+  renderPreviews();
+}
+function clearUploads() {
+  pendingFiles = [];
+  renderPreviews();
+}
+
+async function uploadFiles() {
+  if (!pendingFiles.length) return;
+
+  // Validate each file server-side too, but also client-side
+  const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
+  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  for (const file of pendingFiles) {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return toast(`"${file.name}" — sirf JPG, PNG, WEBP, GIF allowed hai`, 'error');
+    }
+    if (file.size > MAX_SIZE) {
+      return toast(`"${file.name}" — max size 5MB hai`, 'error');
+    }
+  }
+
+  const btn = document.getElementById('btn-upload');
+  btn.disabled = true; btn.textContent = 'Uploading...';
+
+  let success = 0, fail = 0;
+  for (let i = 0; i < pendingFiles.length; i++) {
+    const file = pendingFiles[i];
+    // Sanitize filename: remove path separators, null bytes, keep only safe chars
+    const safeName = file.name
+      .replace(/[^a-zA-Z0-9._\-\u0900-\u097F]/g, '_')
+      .replace(/\.{2,}/g, '_')   // no ".."
+      .slice(0, 100);             // max 100 chars
+    const fileName = `mandir/${Date.now()}_${i}_${safeName}`;
+    const { error } = await sb.storage
+      .from('temple-images')
+      .upload(fileName, file, { upsert: false });
+    if (error) { fail++; console.error(error); }
+    else success++;
+  }
+
+  btn.disabled = false; btn.textContent = '⬆️ Upload करें';
+  toast(`${success} uploaded${fail ? `, ${fail} failed` : ''}`, success ? 'success' : 'error');
+  clearUploads();
+  loadGallery();
+}
+
+async function loadGallery() {
+  const el = document.getElementById('gallery-list');
+  el.innerHTML = '<div class="loading-center"><div class="spinner"></div></div>';
+
+  const { data, error } = await sb.storage.from('temple-images').list('mandir', {
+    limit: 50, sortBy: { column: 'created_at', order: 'desc' }
+  });
+
+  if (error) {
+    const errDiv = document.createElement('div');
+    errDiv.className = 'empty-state';
+    const icon = document.createElement('span');
+    icon.className = 'empty-icon';
+    icon.textContent = '⚠️';
+    const msg = document.createElement('p');
+    msg.style.color = 'var(--danger)';
+    msg.textContent = error.message; // textContent — safe, no XSS
+    errDiv.appendChild(icon);
+    errDiv.appendChild(msg);
+    el.innerHTML = '';
+    el.appendChild(errDiv);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="empty-state"><span class="empty-icon">🖼️</span><p>Koi image nahi hai abhi</p></div>';
+    return;
+  }
+
+  const { data: urlData } = sb.storage.from('temple-images').getPublicUrl('mandir/placeholder');
+  const baseUrl = urlData.publicUrl.replace('/mandir/placeholder','');
+
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem">
+    ${data.filter(f => f.name !== '.emptyFolderPlaceholder').map(f => {
+      const url = `${baseUrl}/mandir/${encodeURIComponent(f.name)}`;
+      const safeName = esc(f.name);
+      // Store filename in data attribute — no inline JS string injection
+      return `<div class="preview-item" style="aspect-ratio:1" data-fname="${safeName}">
+        <img src="${url}" alt="${safeName}" loading="lazy">
+        <button class="preview-remove" style="background:rgba(224,53,53,0.8)"
+          onclick="deleteImageFromEl(this)">🗑️</button>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// Called from gallery — reads filename from data attribute (no inline string injection)
+function deleteImageFromEl(btn) {
+  const name = btn.closest('[data-fname]').dataset.fname;
+  deleteImage(name);
+}
+
+async function deleteImage(name) {
+  // Validate: only allow safe filenames (no path traversal)
+  if (!name || /[/\\<>|*?"]/.test(name) || name.includes('..')) {
+    return toast('Invalid filename', 'error');
+  }
+  const { error } = await sb.storage.from('temple-images').remove([`mandir/${name}`]);
+  if (error) return toast(error.message, 'error');
+  toast('Deleted!', 'success');
+  loadGallery();
+}
+
+// ── TOAST ────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+// ── CLOSE MODALS ON OVERLAY CLICK ────────────────────────
+document.getElementById('pujari-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById('confirm-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+</script>
+
+<!-- ═══ SQL SCHEMA COMMENT ═══
+Run this in Supabase SQL Editor:
+
+CREATE TABLE IF NOT EXISTS public.pujari (
+  id          bigserial PRIMARY KEY,
+  naam        text NOT NULL,
+  number      text NOT NULL,
+  date        date UNIQUE,
+  notes       text,
+  created_at  timestamptz DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE public.pujari ENABLE ROW LEVEL SECURITY;
+
+-- Allow authenticated users (admins) to do everything
+CREATE POLICY "Admins full access"
+  ON public.pujari
+  FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Allow public READ (for website to show today's pujari)
+CREATE POLICY "Public can read"
+  ON public.pujari
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Storage bucket (run in Supabase dashboard > Storage):
+-- Create bucket named "temple-images" → set to Public
+═══ -->
+
+</body>
+</html>
